@@ -23,8 +23,25 @@ def image_viewer(datasource):
 
 @app.route("/upload_page")
 def upload_page():
-    return render_template("upload.html", data={'datasource': '', 'datasources': get_config_names(),
-                                                'is_docker': app.config['IS_DOCKER']})
+     # Basic data common to both modes.
+    data = {
+        'datasource': '',
+        'datasources': get_config_names(),
+        'is_docker': app.config.get('IS_DOCKER', False)
+    }
+    # If running in MC_MICRO mode (i.e. automatic pipeline), prepopulate extra values.
+    if app.config.get('MC_MICRO'):
+        default_output = app.config.get('ORIGINAL_DIR', '')
+        dataset_name = Path(default_output).name if default_output else ''
+        data.update({
+            'mcmicro': True,
+            'reg_file': app.config.get('REG_PATH', ''),
+            'csv_file': app.config.get('CSV_PATH', ''),
+            'mcmicro_output_folder': default_output,
+            'dataset_name': dataset_name,
+            'auto_update': True  
+        })
+    return render_template("upload.html", data=data)
 
 
 

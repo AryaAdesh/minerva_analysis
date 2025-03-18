@@ -6,21 +6,42 @@
     <div class="sectionContent" id="upload-container">
         <div class="row">
             <div class="col">
-                    <div class="row">
-                        <div class="col-3">
-                            <label for="import_type">MCMICRO</label>
-                        </div>
-                        <div class="col-auto">
-                            <input type="checkbox" id="import_type" name="is_mc_micro" value="mcmicro">
-                        </div>
+                <!-- MCMICRO TOGGLE -->
+                <div class="form-group row">
+                    <label for="import_type" class="col-sm-3 col-form-label">MCMICRO</label>
+                    <div class="col-sm-9">
+                        <!-- Auto-check the box if MC micro defaults are provided -->
+                        <input
+                          type="checkbox"
+                          id="import_type"
+                          name="is_mc_micro"
+                          value="mcmicro"
+                          {% if data.mcmicro %} checked {% endif %}
+                        >
                     </div>
-                <form action="/upload" id="custom_form" method="POST" class="needs-validation" enctype="multipart/form-data"  novalidate>
-                    <div class="row">
-                        <div class="col-3">
-                            <label for="name" >Dataset Name:</label>
-                        </div>
-                        <div class="col-9">
-                            <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+
+                <!-- CUSTOM / MANUAL FORM -->
+                <form
+                  action="/upload"
+                  id="custom_form"
+                  method="POST"
+                  class="needs-validation"
+                  enctype="multipart/form-data"
+                  novalidate
+                  {% if data.auto_update %} style="display: none;" {% else %} style="display: block;" {% endif %}
+                >
+                    <!-- DATASET NAME -->
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-3 col-form-label">Dataset Name:</label>
+                        <div class="col-sm-9">
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="name"
+                              name="name"
+                              required
+                            >
                             <div class="valid-feedback">Valid.</div>
                             <div class="invalid-feedback">
                                 Please name the dataset.
@@ -28,129 +49,213 @@
                             <br>
                         </div>
                     </div>
-                    <div id="custom_import" style="display: inline;">
-                        <div class="row">
-                            <div class="col-3">
-                                <label for="channel_file">Image File Path:</label>
+
+                    <!-- IMAGE FILE PATH -->
+                    <div class="form-group row">
+                        <label for="channel_file" class="col-sm-3 col-form-label">Image File Path:</label>
+                        <div class="col-sm-9">
+                            <input
+                              type="text"
+                              id="channel_file"
+                              class="form-control"
+                              name="channel_file"
+                              onkeyup="checkFileExistence(this)"
+                              required
+                            >
+                            <div class="valid-feedback">Valid.</div>
+                            <div class="invalid-feedback">
+                                Please provide a valid path to the channel image file.
                             </div>
-                            <div class="col-9">
-                                <input type="text" id="channel_file" class="form-control" name="channel_file" onkeyup="checkFileExistence(this)" required>
-                                <div class="valid-feedback">Valid.</div>
-                                <div class="invalid-feedback">
-                                    Please provide a valid path to the channel image file.
-                                </div>
-                                <br>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3">
-                                <label for="label_file">Segmentation File Path:</label>
-                            </div>
-                            <div class="col-9">
-                                <input type="text" id="label_file" class="form-control" name="label_file" onkeyup="checkFileExistence(this)" required>
-                                <div class="valid-feedback">Valid.</div>
-                                <div class="invalid-feedback">
-                                    Please provide a valid path to the segmentation mask.
-                                </div>
-                                <br>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3">
-                                <label for="csv_file">Quantification File CSV:</label>
-                            </div>
-                            <div class="col-9">
-{#                                <input type="file" id="csv_file" name="csv_file" required>#}
-                                <input type="text" id="csv_file" class="form-control" name="csv_file" onkeyup="checkFileExistence(this)" required>
-                                <div class="valid-feedback">Valid.</div>
-                                <div class="invalid-feedback">
-                                    Please provide a valid single cell csv file.
-                                </div>
-                                <br>
-                            </div>
+                            <br>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <button id="upload_button" class="btn btn-primary" type="submit" name="action" value="Upload">Submit</button>
+
+                    <!-- SEGMENTATION FILE PATH -->
+                    <div class="form-group row">
+                        <label for="label_file" class="col-sm-3 col-form-label">Segmentation File Path:</label>
+                        <div class="col-sm-9">
+                            <input
+                              type="text"
+                              id="label_file"
+                              class="form-control"
+                              name="label_file"
+                              onkeyup="checkFileExistence(this)"
+                              required
+                            >
+                            <div class="valid-feedback">Valid.</div>
+                            <div class="invalid-feedback">
+                                Please provide a valid path to the segmentation mask.
+                            </div>
+                            <br>
+                        </div>
+                    </div>
+
+                    <!-- QUANTIFICATION FILE CSV -->
+                    <div class="form-group row">
+                        <label for="csv_file" class="col-sm-3 col-form-label">Quantification File CSV:</label>
+                        <div class="col-sm-9">
+                            {# <input type="file" id="csv_file" name="csv_file" required> #}
+                            <input
+                              type="text"
+                              id="csv_file"
+                              class="form-control"
+                              name="csv_file"
+                              onkeyup="checkFileExistence(this)"
+                              required
+                            >
+                            <div class="valid-feedback">Valid.</div>
+                            <div class="invalid-feedback">
+                                Please provide a valid single cell csv file.
+                            </div>
+                            <br>
+                        </div>
+                    </div>
+
+                    <!-- CUSTOM FORM SUBMIT -->
+                    <div class="form-group row">
+                        <div class="col-sm-9 offset-sm-3">
+                            <button
+                              id="upload_button"
+                              class="btn btn-primary"
+                              type="submit"
+                              name="action"
+                              value="Upload"
+                            >
+                              Submit
+                            </button>
                         </div>
                     </div>
                 </form>
-                <form action="/upload" id="mcmicro_form" method="POST" a href="javascript:;" class="needs-validation" enctype="multipart/form-data" style="display:none" novalidate>
-                    <div class="row">
-                        <div class="col-3">
-                            <label for="name" >Dataset Name:</label>
-                        </div>
-                        <div class="col-9">
-                            <input type="text" class="form-control" id="mcmicro_name" name="mcmicro_name" onkeyup="checkDatasetExistence(this)">
-                            <div class="valid-feedback">Valid. (if no name chosen mcmicro project name is used.)</div>
+
+                <!-- MC MICRO FORM -->
+                <form
+                  action="/upload"
+                  id="mcmicro_form"
+                  method="POST"
+                  class="needs-validation"
+                  enctype="multipart/form-data"
+                  novalidate
+                  {% if data.auto_update %} style="display: block;" {% else %} style="display: none;" {% endif %}
+                >
+                    <!-- DATASET NAME -->
+                    <div class="form-group row">
+                        <label for="mcmicro_name" class="col-sm-3 col-form-label">Dataset Name:</label>
+                        <div class="col-sm-9">
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="mcmicro_name"
+                              name="mcmicro_name"
+                              onkeyup="checkDatasetExistence(this)"
+                              value="{{ data.dataset_name or '' }}"
+                            >
+                            <div class="valid-feedback">Valid. (if no name chosen, mcmicro project name is used.)</div>
                             <div class="invalid-feedback">
                                 Dataset name already exists. Please choose a different name.
                             </div>
                             <br>
                         </div>
                     </div>
-                    <div id="mcmicro_import">
-                        <div class="row ">
-                            <div class="col-3">
-                                <label for="name" class="form-label">Path:</label>
+
+                    <!-- PATH -->
+                    <div class="form-group row">
+                        <label for="mcmicro_output_folder" class="col-sm-3 col-form-label">Path:</label>
+                        <div class="col-sm-9">
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="mcmicro_output_folder"
+                              name="mcmicro_output_folder"
+                              required
+                              onkeyup="fillCSVFileList(); fillImgFileList(); fillSegFileList(); checkMCOutputFolder(this)"
+                              value="{{ data.mcmicro_output_folder or '' }}"
+                            >
+                            <div class="valid-feedback">Valid.</div>
+                            <div class="invalid-feedback" id="mcmicro_path_validation_text">
+                                Please provide a valid path.
                             </div>
-                            <div class="col-9">
-                                <input type="text" class="form-control" id="mcmicro_output_folder" name="mcmicro_output_folder" required onkeyup="fillCSVFileList(); fillImgFileList(); fillSegFileList(); checkMCOutputFolder(this)">
-                                <div class="valid-feedback">Valid.</div>
-                                <div class="invalid-feedback" id="mcmicro_path_validation_text">
-                                  Please provide a valid path.
-                                </div>
-                                <br>
-                            </div>
+                            <br>
                         </div>
-                        <div class="row">
-                            <div class="col-3">
-                                <label for="mcmicro_masks">Choose a quantification file:</label>
-                            </div>
-                            <div class="col-auto">
-                              <select id="mcmicro_masks" class="form-control" name="masks" required onchange="checkCSVFileExistence(this);">
-                              </select>
-                                <div class="valid-feedback">Valid.</div>
-                                <div class="invalid-feedback" id="mcmicro_mask_validation_text">
-                                    No mask files found under this path.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3">
-                                <label for="mcmicro_images">Choose an image file:</label>
-                            </div>
-                            <div class="col-auto">
-                              <select id="mcmicro_images" class="form-control" name="images" required onchange="checkChannelExistence(this);">
-                              </select>
-                                <div class="valid-feedback">Valid.</div>
-                                <div class="invalid-feedback" id="mcmicro_mask_validation_text">
-                                    No image files found under this path.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-3">
-                                <label for="mcmicro_seg">Choose a segmentation file:</label>
-                            </div>
-                            <div class="col-auto">
-                              <select id="mcmicro_seg" class="form-control" name="segs" required onchange="checkChannelExistence(this);">
-                              </select>
-                                <div class="valid-feedback">Valid.</div>
-                                <div class="invalid-feedback" id="mcmicro_mask_validation_text">
-                                    No image files found under this path.
-                                </div>
+                    </div>
+
+                    <!-- QUANTIFICATION FILE SELECT -->
+                    <div class="form-group row">
+                        <label for="mcmicro_masks" class="col-sm-3 col-form-label">Choose a quantification file:</label>
+                        <div class="col-sm-9">
+                            <select
+                              id="mcmicro_masks"
+                              class="form-control"
+                              name="masks"
+                              required
+                              onchange="checkCSVFileExistence(this);"
+                            >
+                                <option value="{{ data.csv_file or '' }}">{{ data.csv_file or 'Select quantification file' }}</option>
+                            </select>
+                            <div class="valid-feedback">Valid.</div>
+                            <div class="invalid-feedback" id="mcmicro_mask_validation_text">
+                                No mask files found under this path.
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <button id="upload_button_mcmicro" a href="javascript:;" class="btn btn-primary" type="submit" name="action" value="Upload">Submit</button>
+
+                    <!-- IMAGE FILE SELECT -->
+                    <div class="form-group row">
+                        <label for="mcmicro_images" class="col-sm-3 col-form-label">Choose an image file:</label>
+                        <div class="col-sm-9">
+                            <select
+                              id="mcmicro_images"
+                              class="form-control"
+                              name="images"
+                              required
+                              onchange="checkChannelExistence(this);"
+                            >
+                                <option value="{{ data.reg_file or '' }}">{{ data.reg_file or 'Select image file' }}</option>
+                            </select>
+                            <div class="valid-feedback">Valid.</div>
+                            <div class="invalid-feedback" id="mcmicro_mask_validation_text">
+                                No image files found under this path.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEGMENTATION FILE SELECT -->
+                    <div class="form-group row">
+                        <label for="mcmicro_seg" class="col-sm-3 col-form-label">Choose a segmentation file:</label>
+                        <div class="col-sm-9">
+                            <select
+                              id="mcmicro_seg"
+                              class="form-control"
+                              name="segs"
+                              required
+                              onchange="checkChannelExistence(this);"
+                            >
+                                <!-- Options will be populated via AJAX -->
+                            </select>
+                            <div class="valid-feedback">Valid.</div>
+                            <div class="invalid-feedback" id="mcmicro_mask_validation_text">
+                                No segmentation files found under this path.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MCMICRO FORM SUBMIT -->
+                    <div class="form-group row">
+                        <div class="col-sm-9 offset-sm-3">
+                            <button
+                              id="upload_button_mcmicro"
+                              class="btn btn-primary"
+                              type="submit"
+                              name="action"
+                              value="Upload"
+                            >
+                              Submit
+                            </button>
                         </div>
                     </div>
                 </form>
-                <did class="row">
+
+                <!-- PROGRESS SECTION -->
+                <div class="row">
                     <div class="col-8">
                         <br>
                         <div id="progress">
@@ -160,10 +265,49 @@
                             </div>
                         </div>
                     </div>
-                </did>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <script src="../client/src/js/services/importFormValidation.js" defer></script>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        if (window.flaskVariables && window.flaskVariables.auto_update) {
+            document.getElementById('import_type').checked = true;
+            document.getElementById('custom_form').style.display = 'none';
+            document.getElementById('mcmicro_form').style.display = 'block';
+            // Now fetch segmentation file options via AJAX using the provided mcmicro_output_folder
+            if (window.flaskVariables.mcmicro_output_folder) {
+                fetch('/get_mc_segmentation_file_list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ path: window.flaskVariables.mcmicro_output_folder })
+                })
+                .then(response => response.json())
+                .then(options => {
+                    const segSelect = document.getElementById('mcmicro_seg');
+                    segSelect.innerHTML = ''; // Clear any existing options
+                    if (options.length > 0) {
+                        options.forEach(opt => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = opt;
+                            optionElement.text = opt;
+                            segSelect.appendChild(optionElement);
+                        });
+                    } else {
+                        const defaultOpt = document.createElement('option');
+                        defaultOpt.value = '';
+                        defaultOpt.text = 'No segmentation files found';
+                        segSelect.appendChild(defaultOpt);
+                    }
+                })
+                .catch(err => console.error('Error fetching segmentation options:', err));
+            }
+        }
+    });
+</script>
 {% endblock %}

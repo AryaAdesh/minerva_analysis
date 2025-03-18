@@ -1,6 +1,8 @@
 import sys
-
+import os
 from waitress import serve
+import logging, sys
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 
 from minerva_analysis import app
 
@@ -18,6 +20,12 @@ if __name__ == '__main__':
     else:
         is_docker = False
     app.config['IS_DOCKER'] = is_docker
+
+    app.config['MC_MICRO'] = os.environ.get("MC_MICRO", "false").lower() == "true"
+    if app.config['MC_MICRO']:
+        app.config['REG_PATH'] = os.environ.get("REG_PATH", "")
+        app.config['CSV_PATH'] = os.environ.get("CSV_PATH", "")
+        app.config['ORIGINAL_DIR'] = os.environ.get("ORIGINAL_DIR", "")
 
     print('Serving on 0.0.0.0:' + str(port) + ' or http://localhost:' + str(port))
     serve(app, host='0.0.0.0', port=port, max_request_body_size=1073741824000000,
